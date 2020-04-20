@@ -23,12 +23,20 @@ public class BaseExceptionHandler {
   @ResponseBody
   public Result error(HttpServletRequest request, HttpServletResponse response,Exception e){
 
+    System.out.println("Exception:::" + e.getMessage());
+
     return new Result(ResultCode.SERVER_ERROR);
   }
 
   @ExceptionHandler(value = IhrmException.class)
   @ResponseBody
   public Result myError(IhrmException e){
+
+    System.out.println("Exception:::" + e.getMessage());
+
+    if(e.getMessage() != null){
+      return new Result(ResultCode.SERVER_ERROR.code(),e.getMessage(),false);
+    }
 
     if(e.getResultCode() == null){
       return new Result(ResultCode.SERVER_ERROR);

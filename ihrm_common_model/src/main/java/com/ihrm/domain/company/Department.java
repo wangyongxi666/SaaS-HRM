@@ -28,7 +28,7 @@ public class Department implements Serializable {
     /**
      * 父级ID
      */
-    private String pid;
+    private String parent_id;
     /**
      * 企业ID
      */
