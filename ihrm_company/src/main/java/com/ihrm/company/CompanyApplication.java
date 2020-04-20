@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
  * @Date  2020年04月20日 13:28
  * @Version 1.0.0
 */
-@SpringBootApplication(scanBasePackages = "com.ihrm.company")
+@SpringBootApplication(scanBasePackages = "com.ihrm")
 @EntityScan("com.ihrm.domain.company")
 public class CompanyApplication {
 

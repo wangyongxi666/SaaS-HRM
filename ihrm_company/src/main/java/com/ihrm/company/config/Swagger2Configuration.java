@@ -19,15 +19,15 @@ public class Swagger2Configuration {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.tensquare.article"))
+                .apis(RequestHandlerSelectors.basePackage("com.ihrm.company"))
                 .paths(PathSelectors.any())
                 .build();
     }
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("十次方api文档")
-                .description("十次方api文档")
+                .title("Saas-ihrm企业管理系统api文档")
+                .description("Saas-ihrm企业管理系统api文档")
 //                .termsOfServiceUrl("/")
                 .version("1.0")
                 .build();

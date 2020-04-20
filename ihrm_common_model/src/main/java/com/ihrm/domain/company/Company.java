@@ -21,6 +21,7 @@ import java.util.Date;
 @Table(name = "co_company")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Company implements Serializable{
 
     private static final long serialVersionUID = 594829320797158219L;
