@@ -29,7 +29,7 @@ public class DeptListResult {
   public DeptListResult(Company company,List<Department> depts){
     this.companyId = company.getId();
     this.companyName = company.getName();
-    this.companyManage = company.getManagerId();
+    this.companyManage = company.getManagerName();
 
     this.depts = depts;
   }

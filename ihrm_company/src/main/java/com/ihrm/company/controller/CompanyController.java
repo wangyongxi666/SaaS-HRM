@@ -21,7 +21,7 @@ import java.util.List;
  * @Date  2020年04月20日 15:29
  * @Version 1.0.0
 */
-@Api(value = "企业管理接口",description = "提供企业增、删、改、查服务")
+@Api(tags = "企业管理接口",description = "提供企业增、删、改、查服务")
 @RestController
 @RequestMapping("/company")
 @CrossOrigin //解决跨域问题

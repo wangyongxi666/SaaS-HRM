@@ -22,9 +22,9 @@ import java.util.List;
  * @Date  2020年04月20日 23:25
  * @Version 1.0.0
 */
-@Api(value = "部门管理接口",description = "提供部门增、删、改、查服务")
+@Api(tags = "部门管理接口",description = "提供部门增、删、改、查服务")
 @RestController
-@RequestMapping("/department")
+@RequestMapping("/company/department")
 @CrossOrigin //解决跨域问题
 public class DepartmentController extends BaseController{
 
@@ -70,13 +70,10 @@ public class DepartmentController extends BaseController{
   }
 
   @ApiOperation("根据企业id查询部门信息")
-  @GetMapping("/findAll/{companyId}")
-  @ApiImplicitParams({
-          @ApiImplicitParam(name = "companyId",value = "企业id",dataType = "String",required = true,paramType = "path")
-  })
-  public Result findAll(@PathVariable("companyId") String companyId){
+  @GetMapping()
+  public Result findAll(){
 
-    DeptListResult data = departmentService.findAll(companyId);
+    DeptListResult data = departmentService.findAll(super.parseCompanyId());
 
     return new Result(ResultCode.SUCCESS,data);
   }

@@ -38,6 +38,10 @@ public class Company implements Serializable{
      */
     private String managerId;
     /**
+     * 企业负责人名称
+     */
+    private String managerName;
+    /**
      * 当前版本
      */
     private String version;
