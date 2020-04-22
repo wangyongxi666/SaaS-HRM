@@ -132,12 +132,13 @@ public class UserServiceImpl implements UserService{
    * @param user
    */
   @Override
-  public String getToken(User user) {
+  public String getToken(User user,String builder) {
 
     Map<String,Object> map = new HashMap<>();
 
     map.put("companyId",user.getCompanyId());
     map.put("companyName",user.getCompanyName());
+    map.put("apis",builder);
 
     String token = jwtUtils.createJwt(user.getUsername(), user.getId(), map);
 
@@ -145,6 +146,7 @@ public class UserServiceImpl implements UserService{
   }
 
   /**
+   * (使用spring拦截器替代次方法的功能，此方法作废)
    * 从header中获取并解析token
    **/
   @Override

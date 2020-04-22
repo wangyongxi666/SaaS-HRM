@@ -4,7 +4,9 @@ import com.ihrm.common.controller.BaseController;
 import com.ihrm.common.entiy.PageResult;
 import com.ihrm.common.entiy.Result;
 import com.ihrm.common.entiy.ResultCode;
+import com.ihrm.common.util.PermissionConstants;
 import com.ihrm.domain.system.Permission;
+import com.ihrm.domain.system.Role;
 import com.ihrm.domain.system.User;
 import com.ihrm.domain.system.response.ProfileResult;
 import com.ihrm.system.service.PermissionService;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //1.解决跨域
 @CrossOrigin
@@ -57,10 +60,14 @@ public class UserController extends BaseController {
     return Result.SUCCESS();
   }
 
+  //Bearer eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1ODc1NzYyNzAsImlhdCI6MTU4NzU3NTkxMCwianRpIjoiMTI1MjYzNDc3NzE2MTQzNzE4NSIsInN1YiI6IuiAgeWImCIsImNvbXBhbnlJZCI6IjEiLCJhcGlzIjoiIiwiY29tcGFueU5hbWUiOiLliJjlp6Xlp6Xlhazlj7gifQ.T8ViIq23JMjjwVCmUvX8xKrRcXleovMj2HUGZG3PItw
+  //1252634777161437186
   @ApiOperation("删除用户")
-  @DeleteMapping("/user/{id}")
+  @DeleteMapping(value = "/user/{id}",name = "API-USER-DELETE")
+//  @RequestMapping(value = "/user/{id}",method = RequestMethod.DELETE,name = "API-USER-DELETE")
   @ApiImplicitParams({
-          @ApiImplicitParam(name = "id",value = "用户id",required = true,dataType = "String",paramType = "path")
+          @ApiImplicitParam(name = "id",value = "用户id",required = true,dataType = "String",paramType = "path"),
+          @ApiImplicitParam(name = "Authorization",value = "user token",required = true,dataType = "string",paramType = "header"),
   })
   public Result delete(@PathVariable(name = "id") String id) throws Exception {
     userService.delete(id);
@@ -108,8 +115,21 @@ public class UserController extends BaseController {
       return new Result(ResultCode.SERVER_ERROR.code(),"密码或用户名失败",false);
     }
 
+    //登陆成功后，获取所有可访问的api权限
+    //api 权限字符串 使用 , 分割
+    StringBuilder builder = new StringBuilder();
+    Set<Role> roles = user.getRoles();
+    for (Role role : roles) {
+      Set<Permission> permissions = role.getPermission();
+      for (Permission permission : permissions) {
+        if(permission.getType() == PermissionConstants.PY_API){
+          builder.append(permission.getCode()).append(",");
+        }
+      }
+    }
+
     //登陆成功则进行token申请
-    String token = userService.getToken(user);
+    String token = userService.getToken(user,builder.toString());
 
     return new Result(ResultCode.SUCCESS,token);
   }
@@ -121,11 +141,8 @@ public class UserController extends BaseController {
   })
   public Result profile() throws Exception {
 
-    String tokenKey = "Authorization";
-    String token = request.getHeader(tokenKey);
-
-    //从请求头中获取token 并进行解析
-    Claims claims = userService.getTokenForHeader(request);
+    //从请求头中获取token 并进行解析(已用拦截器进行过滤)
+//    Claims claims = userService.getTokenForHeader(request);
 
     //获取id
     String userid = claims.getId();

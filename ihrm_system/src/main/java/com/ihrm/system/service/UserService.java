@@ -51,7 +51,7 @@ public interface UserService {
   /**
    * token申请
   **/
-  String getToken(User user);
+  String getToken(User user,String builder);
 
   /**
    * 从header中获取并解析token
