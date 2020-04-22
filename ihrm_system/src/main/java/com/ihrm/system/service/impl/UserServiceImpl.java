@@ -1,11 +1,13 @@
 package com.ihrm.system.service.impl;
 
 import com.ihrm.common.util.IdWorker;
+import com.ihrm.common.util.JwtUtils;
 import com.ihrm.domain.system.Role;
 import com.ihrm.domain.system.User;
 import com.ihrm.system.dao.RoleResitory;
 import com.ihrm.system.dao.UserResitory;
 import com.ihrm.system.service.UserService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -29,19 +32,19 @@ public class UserServiceImpl implements UserService{
   private UserResitory userResitory;
   @Autowired
   private RoleResitory roleResitory;
+  @Autowired
+  private JwtUtils jwtUtils;
 
   /**
    * 根据手机号和密码查询用户
    **/
   public User findByMobileAndPassword(String mobile, String password) {
-//    User user = userResitory.findByMobile(mobile);
-//    if (user != null && password.equals(user.getPassword())) {
-//      return user;
-//    } else {
-//      return null;
-//    }
-
-    return null;
+    User user = userResitory.findUserByMobile(mobile);
+    if (user != null && password.equals(user.getPassword())) {
+      return user;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -124,6 +127,45 @@ public class UserServiceImpl implements UserService{
   }
 
   /**
+   * token申请
+   *
+   * @param user
+   */
+  @Override
+  public String getToken(User user) {
+
+    Map<String,Object> map = new HashMap<>();
+
+    map.put("companyId",user.getCompanyId());
+    map.put("companyName",user.getCompanyName());
+
+    String token = jwtUtils.createJwt(user.getUsername(), user.getId(), map);
+
+    return token;
+  }
+
+  /**
+   * 从header中获取并解析token
+   **/
+  @Override
+  public Claims getTokenForHeader(HttpServletRequest request) {
+    //约定的key
+    String tokenKey = "Authorization";
+    //约定的值的格式 Bearer token值
+    String toeknFormat = "Bearer ";
+
+    //获取token
+    String token = request.getHeader(tokenKey);
+    //替换前缀
+    String replace = token.replace(toeknFormat, "");
+    //解析token
+
+    Claims claims = jwtUtils.parseJwt(replace);
+
+    return claims;
+  }
+
+  /**
    * 动态条件构建
    *
    * @param searchMap
@@ -177,4 +219,6 @@ public class UserServiceImpl implements UserService{
       }
     };
   }
+
+
 }

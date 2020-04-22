@@ -1,8 +1,10 @@
 package com.ihrm.system.service;
 
 import com.ihrm.domain.system.User;
+import io.jsonwebtoken.Claims;
 import org.springframework.data.domain.Page;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -45,4 +47,14 @@ public interface UserService {
    * 调整部门
    */
   public void changeDept(String deptId, String deptName, List<String> ids);
+
+  /**
+   * token申请
+  **/
+  String getToken(User user);
+
+  /**
+   * 从header中获取并解析token
+  **/
+  Claims getTokenForHeader(HttpServletRequest request);
 }

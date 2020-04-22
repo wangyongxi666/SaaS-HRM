@@ -6,10 +6,7 @@ import com.ihrm.domain.system.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Setter
 @Getter
@@ -18,6 +15,30 @@ public class ProfileResult {
     private String username;
     private String company;
     private Map<String,Object> roles = new HashMap<>();
+
+    public ProfileResult(User user,List<Permission> list){
+        this.mobile = user.getMobile();
+        this.username = user.getUsername();
+        this.company = user.getCompanyName();
+
+        Set<String> menus = new HashSet<>();
+        Set<String> points = new HashSet<>();
+        Set<String> apis = new HashSet<>();
+
+        for (Permission permission : list) {
+            if(permission.getType() == 1){
+                menus.add(permission.getCode());
+            }else if(permission.getType() == 2){
+                points.add(permission.getCode());
+            }else{
+                apis.add(permission.getCode());
+            }
+        }
+
+        this.roles.put("menus",menus);
+        this.roles.put("points",points);
+        this.roles.put("apis",apis);
+    }
 
     public ProfileResult(User user) {
         this.mobile = user.getMobile();
@@ -28,6 +49,7 @@ public class ProfileResult {
         Set<String> menus = new HashSet<>();
         Set<String> points = new HashSet<>();
         Set<String> apis = new HashSet<>();
+
         for (Role role : roles) {
             Set<Permission> perms = role.getPermission();
             for (Permission perm : perms) {

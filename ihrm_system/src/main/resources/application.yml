@@ -15,4 +15,7 @@ spring:
    hibernate:
      ddl-auto: update
    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-
+jwt:
+ config:
+    key: saas-ihrm
+    ttl: 360000

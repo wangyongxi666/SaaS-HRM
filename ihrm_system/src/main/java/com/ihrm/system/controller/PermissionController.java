@@ -12,7 +12,9 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,10 +54,24 @@ public class PermissionController {
 
     @ApiOperation("查询列表")
     @GetMapping("/permission")
+//    @ApiImplicitParams({
+//            @ApiImplicitParam(name = "map",value = "权限数据",required = true,dataType = "map",paramType = "param")
+//    })
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "map",value = "权限数据",required = true,dataType = "map",paramType = "param")
+            @ApiImplicitParam(name = "type",value = "权限类型",required = true,dataType = "int",paramType = "param"),
+            @ApiImplicitParam(name = "enVisible",value = "可见性",required = true,dataType = "string",paramType = "param"),
+            @ApiImplicitParam(name = "pid",value = "父id",required = true,dataType = "string",paramType = "param"),
     })
-    public Result findAll(@RequestParam Map map) {
+
+    public Result findAll(@RequestParam(required = false) int type,
+                          @RequestParam(required = false) String enVisible,
+                          @RequestParam(required = false) String pid ) {
+        Map<String,Object> map = new HashMap<>();
+
+        map.put("type",String.valueOf(type));
+        map.put("enVisible",enVisible);
+        map.put("pid",pid);
+
         List<Permission> list =  permissionService.findAll(map);
         return new Result(ResultCode.SUCCESS,list);
     }

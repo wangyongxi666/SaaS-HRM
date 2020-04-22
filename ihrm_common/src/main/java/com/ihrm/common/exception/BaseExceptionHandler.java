@@ -23,7 +23,7 @@ public class BaseExceptionHandler {
   @ResponseBody
   public Result error(HttpServletRequest request, HttpServletResponse response,Exception e){
 
-    System.out.println("Exception:::" + e.getMessage());
+    e.printStackTrace();
 
     return new Result(ResultCode.SERVER_ERROR);
   }
@@ -32,7 +32,7 @@ public class BaseExceptionHandler {
   @ResponseBody
   public Result myError(IhrmException e){
 
-    System.out.println("Exception:::" + e.getMessage());
+    e.printStackTrace();
 
     if(e.getMessage() != null){
       return new Result(ResultCode.SERVER_ERROR.code(),e.getMessage(),false);

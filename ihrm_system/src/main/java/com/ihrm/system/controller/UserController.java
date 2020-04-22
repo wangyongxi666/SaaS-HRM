@@ -4,8 +4,12 @@ import com.ihrm.common.controller.BaseController;
 import com.ihrm.common.entiy.PageResult;
 import com.ihrm.common.entiy.Result;
 import com.ihrm.common.entiy.ResultCode;
+import com.ihrm.domain.system.Permission;
 import com.ihrm.domain.system.User;
+import com.ihrm.domain.system.response.ProfileResult;
+import com.ihrm.system.service.PermissionService;
 import com.ihrm.system.service.UserService;
+import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +30,8 @@ import java.util.Map;
 public class UserController extends BaseController {
   @Autowired
   private UserService userService;
+  @Autowired
+  private PermissionService permissionService;
 
   @ApiOperation("保存用户")
   @PostMapping("/user")
@@ -83,4 +90,71 @@ public class UserController extends BaseController {
     PageResult<User> pr = new PageResult(searchPage.getTotalElements(), searchPage.getContent());
     return new Result(ResultCode.SUCCESS, pr);
   }
+
+  @ApiOperation("登陆")
+  @PostMapping("/login")
+  @ApiImplicitParams({
+          @ApiImplicitParam(name = "map",value = "封装数据",required = true,dataType = "map",paramType = "body"),
+  })
+  public Result login(@RequestBody Map<String,Object> map) throws Exception {
+
+    String mobile = (String)map.get("mobile");
+    String password = (String)map.get("password");
+
+    //根据电话号码查询用户信息
+    User user = userService.findByMobileAndPassword(mobile,password);
+
+    if(user == null){
+      return new Result(ResultCode.SERVER_ERROR.code(),"密码或用户名失败",false);
+    }
+
+    //登陆成功则进行token申请
+    String token = userService.getToken(user);
+
+    return new Result(ResultCode.SUCCESS,token);
+  }
+
+  @ApiOperation("获取用户信息")
+  @PostMapping("/profile")
+  @ApiImplicitParams({
+          @ApiImplicitParam(name = "Authorization",value = "user token",required = true,dataType = "string",paramType = "header"),
+  })
+  public Result profile() throws Exception {
+
+    String tokenKey = "Authorization";
+    String token = request.getHeader(tokenKey);
+
+    //从请求头中获取token 并进行解析
+    Claims claims = userService.getTokenForHeader(request);
+
+    //获取id
+    String userid = claims.getId();
+
+    User user = userService.findById(userid);
+
+    ProfileResult profileResult = null;
+
+    //根据身份不同 封装不一样的权限
+    if("user".equals(user.getLevel())){
+      //普通用户拥有当前的权限
+      profileResult = new ProfileResult(user);
+    }else{
+      Map<String,Object> map = new HashMap<>();
+
+      //企业管理员具有所有的企业权限
+      if ("coAdmin".equals(user.getLevel())){
+        map.put("enVisible","1");
+      }
+
+      //saas 具有所有权限
+      List<Permission> list = permissionService.findAll(map);
+
+      //封装参数
+      profileResult = new ProfileResult(user,list);
+    }
+
+    return new Result(ResultCode.SUCCESS,profileResult);
+  }
+
+
 }
