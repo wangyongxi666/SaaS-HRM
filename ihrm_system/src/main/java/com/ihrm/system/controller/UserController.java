@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+//1.解决跨域
+@CrossOrigin
 @RestController
 @RequestMapping("/sys")
 @Api(tags = "用户管理Api", description= "用户的 增删改查")
@@ -73,7 +75,7 @@ public class UserController extends BaseController {
   @ApiImplicitParams({
           @ApiImplicitParam(name = "page",value = "第几页",required = true,dataType = "int",paramType = "path"),
           @ApiImplicitParam(name = "size",value = "每页条数",required = true,dataType = "int",paramType = "path"),
-          @ApiImplicitParam(name = "map",value = "查询条件",dataType = "map",paramType = "path"),
+          @ApiImplicitParam(name = "map",value = "查询条件",dataType = "map",paramType = "path")
   })
   public Result findByPage(int page, int size, @RequestParam Map<String, Object> map) throws Exception {
     map.put("companyId", parseCompanyId());

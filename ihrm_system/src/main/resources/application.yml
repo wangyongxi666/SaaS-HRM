@@ -12,3 +12,7 @@ spring:
    database: MySQL
    show-sql: true
    open-in-view: true
+   hibernate:
+     ddl-auto: update
+   database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+

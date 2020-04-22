@@ -15,7 +15,9 @@ import java.util.Set;
 @Setter
 public class Role implements Serializable {
     private static final long serialVersionUID = 594829320797158219L;
+
     @Id
+    @Column(name = "ID", unique = true, nullable = false, length = 64)
     private String id;
     /**
      * 角色名
@@ -37,8 +39,9 @@ public class Role implements Serializable {
 
     @JsonIgnore
     @ManyToMany
-    @JoinTable(name="pe_role_permission",
+    @JoinTable(name="pe_role_permission"
+            ,
             joinColumns={@JoinColumn(name="role_id",referencedColumnName="id")},
             inverseJoinColumns={@JoinColumn(name="permission_id",referencedColumnName="id")})
-    private Set<Permission> permissions = new HashSet<Permission>(0);//角色与模块  多对多
+    private Set<Permission> permission = new HashSet<Permission>(0);//角色与模块  多对多
 }

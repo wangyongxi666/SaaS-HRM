@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -24,6 +25,7 @@ public class Permission implements Serializable {
      * 主键
      */
     @Id
+    @Column(name = "ID", unique = true, nullable = false, length = 64)
     private String id;
     /**
      * 权限名称
