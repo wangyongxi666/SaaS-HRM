@@ -17,6 +17,7 @@ public class BaseController {
     protected String companyId;
     protected String companyName;
     protected Claims claims;
+    protected String userId;
 
     //使用jwt方式获取
 //    @ModelAttribute
