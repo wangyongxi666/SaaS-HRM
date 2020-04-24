@@ -14,6 +14,11 @@ public interface UserService {
    * 根据手机号和密码查询用户
   **/
   User findByMobileAndPassword(String mobile, String password);
+
+  /**
+   * 根据手机号查询用户
+  **/
+  User findByMobile(String mobile);
   /**
    * 添加用户
    */

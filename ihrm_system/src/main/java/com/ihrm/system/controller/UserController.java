@@ -16,10 +16,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.crypto.hash.Md5Hash;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +48,8 @@ public class UserController extends BaseController {
           @ApiImplicitParam(name = "user",value = "用户数据",required = true,dataType = "User",paramType = "body")
   })
   public Result add(@RequestBody User user) throws Exception {
-    user.setCompanyId(parseCompanyId());
-    user.setCompanyName(parseCompanyName());
+    user.setCompanyId(companyId);
+    user.setCompanyName(companyName);
     userService.save(user);
     return Result.SUCCESS();
   }
@@ -92,7 +98,7 @@ public class UserController extends BaseController {
           @ApiImplicitParam(name = "map",value = "查询条件",dataType = "map",paramType = "path")
   })
   public Result findByPage(int page, int size, @RequestParam Map<String, Object> map) throws Exception {
-    map.put("companyId", parseCompanyId());
+    map.put("companyId", companyId);
     Page<User> searchPage = userService.findSearch(map, page, size);
     PageResult<User> pr = new PageResult(searchPage.getTotalElements(), searchPage.getContent());
     return new Result(ResultCode.SUCCESS, pr);
@@ -101,37 +107,55 @@ public class UserController extends BaseController {
   @ApiOperation("登陆")
   @PostMapping("/login")
   @ApiImplicitParams({
-          @ApiImplicitParam(name = "map",value = "封装数据",required = true,dataType = "map",paramType = "body"),
+          @ApiImplicitParam(name = "map",value = "{mobile:13800000001,password:123456}",required = true,dataType = "map",paramType = "body"),
   })
   public Result login(@RequestBody Map<String,Object> map) throws Exception {
 
     String mobile = (String)map.get("mobile");
     String password = (String)map.get("password");
 
-    //根据电话号码查询用户信息
-    User user = userService.findByMobileAndPassword(mobile,password);
+    password = new Md5Hash(password, mobile, 3).toString();
 
-    if(user == null){
-      return new Result(ResultCode.SERVER_ERROR.code(),"密码或用户名失败",false);
+    //更换成shiro方式验证登陆 并获取生成sessionId返回前端
+    try {
+      //构造登陆令牌
+      UsernamePasswordToken token = new UsernamePasswordToken(mobile,password);
+      //获取subject
+      Subject subject = SecurityUtils.getSubject();
+      //调用login 方法 进入realm完成认证
+      subject.login(token);
+      //获取sessionId
+      String sessionId = subject.getSession().getId().toString();
+      //构造返回结果
+      return new Result(ResultCode.SUCCESS,sessionId);
+
+    } catch (Exception e) {
+      e.printStackTrace();
     }
 
-    //登陆成功后，获取所有可访问的api权限
-    //api 权限字符串 使用 , 分割
-    StringBuilder builder = new StringBuilder();
-    Set<Role> roles = user.getRoles();
-    for (Role role : roles) {
-      Set<Permission> permissions = role.getPermission();
-      for (Permission permission : permissions) {
-        if(permission.getType() == PermissionConstants.PY_API){
-          builder.append(permission.getCode()).append(",");
-        }
-      }
-    }
+    //构造返回结果
+    return new Result(ResultCode.SERVER_ERROR.code(),"登陆失败",false);
 
+    //根据电话号码和密码查询用户信息
+//    User user = userService.findByMobileAndPassword(mobile,password);
+//    if(user == null){
+//      return new Result(ResultCode.SERVER_ERROR.code(),"密码或用户名失败",false);
+//    }
+//    //登陆成功后，获取所有可访问的api权限
+//    //api 权限字符串 使用 , 分割
+//    StringBuilder builder = new StringBuilder();
+//    Set<Role> roles = user.getRoles();
+//    for (Role role : roles) {
+//      Set<Permission> permissions = role.getPermission();
+//      for (Permission permission : permissions) {
+//        if(permission.getType() == PermissionConstants.PY_API){
+//          builder.append(permission.getCode()).append(",");
+//        }
+//      }
+//    }
     //登陆成功则进行token申请
-    String token = userService.getToken(user,builder.toString());
-
-    return new Result(ResultCode.SUCCESS,token);
+//    String token = userService.getToken(user,builder.toString());
+//    return new Result(ResultCode.SUCCESS,token);
   }
 
   @ApiOperation("获取用户信息")
@@ -144,33 +168,52 @@ public class UserController extends BaseController {
     //从请求头中获取token 并进行解析(已用拦截器进行过滤)
 //    Claims claims = userService.getTokenForHeader(request);
 
-    //获取id
-    String userid = claims.getId();
+    //普通token做法
+//    //获取id
+//    String userid = claims.getId();
+//
+//    User user = userService.findById(userid);
+//
+//    ProfileResult profileResult = null;
+//
+//    //根据身份不同 封装不一样的权限
+//    if("user".equals(user.getLevel())){
+//      //普通用户拥有当前的权限
+//      profileResult = new ProfileResult(user);
+//    }else{
+//      Map<String,Object> map = new HashMap<>();
+//
+//      //企业管理员具有所有的企业权限
+//      if ("coAdmin".equals(user.getLevel())){
+//        map.put("enVisible","1");
+//      }
+//
+//      //saas 具有所有权限
+//      List<Permission> list = permissionService.findAll(map);
+//
+//      //封装参数
+//      profileResult = new ProfileResult(user,list);
+//    }
 
-    User user = userService.findById(userid);
+    //shiro做法
+    Subject subject = SecurityUtils.getSubject();
 
-    ProfileResult profileResult = null;
-
-    //根据身份不同 封装不一样的权限
-    if("user".equals(user.getLevel())){
-      //普通用户拥有当前的权限
-      profileResult = new ProfileResult(user);
-    }else{
-      Map<String,Object> map = new HashMap<>();
-
-      //企业管理员具有所有的企业权限
-      if ("coAdmin".equals(user.getLevel())){
-        map.put("enVisible","1");
-      }
-
-      //saas 具有所有权限
-      List<Permission> list = permissionService.findAll(map);
-
-      //封装参数
-      profileResult = new ProfileResult(user,list);
+    //获取安全数据
+    PrincipalCollection previousPrincipals = subject.getPreviousPrincipals();
+    if(previousPrincipals!= null && !previousPrincipals.isEmpty()){
+      ProfileResult result = (ProfileResult) previousPrincipals.getPrimaryPrincipal();
+      return new Result(ResultCode.SUCCESS,result);
     }
 
-    return new Result(ResultCode.SUCCESS,profileResult);
+    //1.subject获取所有的安全数据集合
+    PrincipalCollection principals = subject.getPrincipals();
+    if(principals != null && !principals.isEmpty()){
+      //2.获取安全数据
+      ProfileResult result = (ProfileResult)principals.getPrimaryPrincipal();
+      return new Result(ResultCode.SUCCESS,result);
+    }
+
+    return new Result(ResultCode.SERVER_ERROR.code(),"查询失败",false);
   }
 
 

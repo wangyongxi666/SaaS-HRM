@@ -7,28 +7,28 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
-@Configuration
+//@Configuration
 public class SystemConfig extends WebMvcConfigurationSupport {
 
-    @Autowired
-    private JwtInterceptor jwtInterceptor;
-
-    /**
-     * 添加拦截器的配置
-     */
-    @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
-        //1.添加自定义拦截器
-        registry.addInterceptor(jwtInterceptor).
-                addPathPatterns("/**").//2.指定拦截器的url地址
-                excludePathPatterns("/sys/login","/frame/register/**", "/swagger-resources/**", "/webjars/**","/v2/**","/swagger-ui.html/**");//3.指定不拦截的url地址
-    }
-
-    @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("swagger-ui.html")
-                .addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
+//    @Autowired
+//    private JwtInterceptor jwtInterceptor;
+//
+//    /**
+//     * 添加拦截器的配置
+//     */
+//    @Override
+//    protected void addInterceptors(InterceptorRegistry registry) {
+//        //1.添加自定义拦截器
+//        registry.addInterceptor(jwtInterceptor).
+//                addPathPatterns("/**").//2.指定拦截器的url地址
+//                excludePathPatterns("/sys/login","/frame/register/**", "/swagger-resources/**", "/webjars/**","/v2/**","/swagger-ui.html/**");//3.指定不拦截的url地址
+//    }
+//
+//    @Override
+//    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("swagger-ui.html")
+//                .addResourceLocations("classpath:/META-INF/resources/");
+//        registry.addResourceHandler("/webjars/**")
+//                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+//    }
 }

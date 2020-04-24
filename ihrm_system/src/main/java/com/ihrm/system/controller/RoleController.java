@@ -50,7 +50,7 @@ public class RoleController extends BaseController{
             @ApiImplicitParam(name = "role",value = "角色数据",required = true,dataType = "Role",paramType = "body")
     })
     public Result add(@RequestBody Role role) throws Exception {
-        role.setCompanyId(super.parseCompanyId());
+        role.setCompanyId(companyId);
         roleService.save(role);
         return Result.SUCCESS();
     }
@@ -95,7 +95,7 @@ public class RoleController extends BaseController{
             @ApiImplicitParam(name = "role",value = "查询条件",dataType = "Role",paramType = "param"),
     })
     public Result findByPage(int page,int pagesize,Role role) throws Exception {
-        Page<Role> searchPage = roleService.findByPage(super.parseCompanyId(), page, pagesize);
+        Page<Role> searchPage = roleService.findByPage(companyId, page, pagesize);
         PageResult<Role> pr = new PageResult(searchPage.getTotalElements(),searchPage.getContent());
         return new Result(ResultCode.SUCCESS,pr);
     }
@@ -103,7 +103,7 @@ public class RoleController extends BaseController{
     @ApiOperation("查询所有角色")
     @GetMapping("/role/list")
     public Result findAll() throws Exception {
-        List<Role> roleList = roleService.findAll(super.parseCompanyId());
+        List<Role> roleList = roleService.findAll(companyId);
         return new Result(ResultCode.SUCCESS,roleList);
     }
 }

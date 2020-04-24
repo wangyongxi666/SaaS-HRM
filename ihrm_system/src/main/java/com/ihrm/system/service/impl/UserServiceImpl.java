@@ -8,6 +8,7 @@ import com.ihrm.system.dao.RoleResitory;
 import com.ihrm.system.dao.UserResitory;
 import com.ihrm.system.service.UserService;
 import io.jsonwebtoken.Claims;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +49,21 @@ public class UserServiceImpl implements UserService{
   }
 
   /**
+   * 根据手机号查询用户
+   *
+   * @param mobile
+   */
+  @Override
+  public User findByMobile(String mobile) {
+    User user = userResitory.findUserByMobile(mobile);
+    if (user != null) {
+      return user;
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * 添加用户
    */
   @Override
@@ -55,7 +71,11 @@ public class UserServiceImpl implements UserService{
     //填充其他参数
     user.setId(idWorker.nextId() + "");
     user.setCreateTime(new Date()); //创建时间
-    user.setPassword("123456");//设置默认登录密码
+
+    //加密
+    String password = new Md5Hash("123456", user.getMobile(), 3).toString();
+    user.setLevel("user");
+    user.setPassword(password);//设置默认登录密码
     user.setEnableState(1);//状态
     userResitory.save(user);
   }

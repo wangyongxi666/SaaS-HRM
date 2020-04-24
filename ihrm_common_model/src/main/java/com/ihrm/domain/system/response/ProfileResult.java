@@ -6,22 +6,27 @@ import com.ihrm.domain.system.User;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.*;
 
 @Setter
 @Getter
-public class ProfileResult {
+public class ProfileResult implements Serializable{
+
     private String mobile;
     private String username;
     private String company;
+    private String companyId;
+
     private Map<String,Object> roles = new HashMap<>();
 
     public ProfileResult(User user,List<Permission> list){
         this.mobile = user.getMobile();
         this.username = user.getUsername();
         this.company = user.getCompanyName();
+        this.companyId = user.getCompanyId();
 
-        Set<String> menus = new HashSet<>();
+      Set<String> menus = new HashSet<>();
         Set<String> points = new HashSet<>();
         Set<String> apis = new HashSet<>();
 
@@ -44,6 +49,7 @@ public class ProfileResult {
         this.mobile = user.getMobile();
         this.username = user.getUsername();
         this.company = user.getCompanyName();
+        this.companyId = user.getCompanyId();
 
         Set<Role> roles = user.getRoles();
         Set<String> menus = new HashSet<>();
