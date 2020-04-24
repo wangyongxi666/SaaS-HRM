@@ -13,8 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * @ClassName DepartmentController
  * @Description (这里用一句话描述这个类的作用)
@@ -26,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/company/department")
 @CrossOrigin //解决跨域问题
-public class DepartmentController extends BaseController{
+public class DepartmentController extends BaseController {
 
   @Autowired
   private DepartmentService departmentService;
@@ -73,7 +71,7 @@ public class DepartmentController extends BaseController{
   @GetMapping()
   public Result findAll(){
 
-    DeptListResult data = departmentService.findAll(super.parseCompanyId());
+    DeptListResult data = departmentService.findAll(companyId);
 
     return new Result(ResultCode.SUCCESS,data);
   }

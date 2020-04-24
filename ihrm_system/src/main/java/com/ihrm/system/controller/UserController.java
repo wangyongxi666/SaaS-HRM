@@ -4,14 +4,10 @@ import com.ihrm.common.controller.BaseController;
 import com.ihrm.common.entiy.PageResult;
 import com.ihrm.common.entiy.Result;
 import com.ihrm.common.entiy.ResultCode;
-import com.ihrm.common.util.PermissionConstants;
-import com.ihrm.domain.system.Permission;
-import com.ihrm.domain.system.Role;
 import com.ihrm.domain.system.User;
 import com.ihrm.domain.system.response.ProfileResult;
 import com.ihrm.system.service.PermissionService;
 import com.ihrm.system.service.UserService;
-import io.jsonwebtoken.Claims;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -25,11 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //1.解决跨域
 @CrossOrigin
@@ -214,6 +206,19 @@ public class UserController extends BaseController {
     }
 
     return new Result(ResultCode.SERVER_ERROR.code(),"查询失败",false);
+  }
+
+  @ApiOperation("定位subject问题")
+  @GetMapping("/subject/check")
+  public String subjectDemo(){
+
+    Subject subject = SecurityUtils.getSubject();
+
+    if(subject != null){
+      return "查到subject" + subject;
+    }else{
+      return "查不到subject" + subject;
+    }
   }
 
 

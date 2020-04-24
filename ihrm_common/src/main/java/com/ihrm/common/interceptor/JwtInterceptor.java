@@ -18,12 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * @ClassName JwtInterceptor
- * @Description (这里用一句话描述这个类的作用)
+ * @Description 拦截器，验证token合法（已经被shiro替代）
  * @Author YongXi.Wang
  * @Date  2020年04月22日 23:18
  * @Version 1.0.0
 */
-@Component
+//@Component
 public class JwtInterceptor extends HandlerInterceptorAdapter{
 
   @Autowired

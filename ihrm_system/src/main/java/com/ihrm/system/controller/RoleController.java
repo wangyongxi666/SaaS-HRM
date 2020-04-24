@@ -23,7 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/sys")
 @Api(tags = "角色管理Api", description= "角色的 增删改查")
-public class RoleController extends BaseController{
+public class RoleController extends BaseController {
     
     @Autowired
     private RoleService  roleService;

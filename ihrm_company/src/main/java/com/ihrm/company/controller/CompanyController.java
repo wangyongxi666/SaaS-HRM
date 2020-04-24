@@ -9,6 +9,8 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -95,5 +97,17 @@ public class CompanyController {
     throw new IhrmException();
   }
 
+  @ApiOperation("定位subject问题")
+  @GetMapping("/subject/check")
+  public String subjectDemo(){
+
+    Subject subject = SecurityUtils.getSubject();
+
+    if(subject != null){
+      return "查到subject" + subject;
+    }else{
+      return "查不到subject" + subject;
+    }
+  }
 
 }

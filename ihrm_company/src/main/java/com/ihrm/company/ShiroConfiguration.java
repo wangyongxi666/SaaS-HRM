@@ -1,8 +1,7 @@
-package com.ihrm.system;
+package com.ihrm.company;
 
 import com.ihrm.common.shiro.realm.IhrmRealm;
 import com.ihrm.common.shiro.session.CustomSessionManager;
-import com.ihrm.system.shiro.realm.UserRealm;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -24,7 +23,7 @@ public class ShiroConfiguration {
     //1.创建realm
     @Bean
     public IhrmRealm getRealm() {
-        return new UserRealm();
+        return new IhrmRealm();
     }
 
     //2.创建安全管理器
