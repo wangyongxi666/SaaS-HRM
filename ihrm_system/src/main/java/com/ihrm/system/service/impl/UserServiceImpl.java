@@ -2,8 +2,10 @@ package com.ihrm.system.service.impl;
 
 import com.ihrm.common.util.IdWorker;
 import com.ihrm.common.util.JwtUtils;
+import com.ihrm.domain.company.Department;
 import com.ihrm.domain.system.Role;
 import com.ihrm.domain.system.User;
+import com.ihrm.system.client.DeptFeign;
 import com.ihrm.system.dao.RoleResitory;
 import com.ihrm.system.dao.UserResitory;
 import com.ihrm.system.service.UserService;
@@ -33,6 +35,8 @@ public class UserServiceImpl implements UserService{
   private UserResitory userResitory;
   @Autowired
   private RoleResitory roleResitory;
+  @Autowired
+  private DeptFeign deptFeign;
   @Autowired
   private JwtUtils jwtUtils;
 
@@ -78,6 +82,33 @@ public class UserServiceImpl implements UserService{
     user.setPassword(password);//设置默认登录密码
     user.setEnableState(1);//状态
     userResitory.save(user);
+  }
+
+  /**
+   * 导入execl批量添加用户
+   *
+   * @param users
+   * @param
+   */
+  @Override
+  public void saveMore(List<User> users) {
+    for (User user : users) {
+      //配置密码
+      user.setPassword(new Md5Hash("123456", user.getMobile(), 3).toString());
+      //配置id
+      user.setId(idWorker.nextId() + "");
+      //其他基本属性
+      user.setInServiceStatus(1);
+      user.setEnableState(1);
+      user.setLevel("user");
+      //获取部门信息
+      Department dept = deptFeign.findByCode(user.getDepartmentId(), user.getCompanyId());
+      if (dept != null) {
+        user.setDepartmentId(dept.getId());
+        user.setDepartmentName(dept.getName());
+      }
+      userResitory.save(user);
+    }
   }
 
   /**

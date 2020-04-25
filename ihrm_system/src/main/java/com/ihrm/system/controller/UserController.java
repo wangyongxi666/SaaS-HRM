@@ -6,22 +6,31 @@ import com.ihrm.common.entiy.Result;
 import com.ihrm.common.entiy.ResultCode;
 import com.ihrm.domain.system.User;
 import com.ihrm.domain.system.response.ProfileResult;
+import com.ihrm.system.client.DeptFeign;
 import com.ihrm.system.service.PermissionService;
 import com.ihrm.system.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 //1.解决跨域
 @CrossOrigin
@@ -33,6 +42,20 @@ public class UserController extends BaseController {
   private UserService userService;
   @Autowired
   private PermissionService permissionService;
+  @Autowired
+  private DeptFeign deptFeign;
+
+  @ApiOperation("测试feign组件")
+  @GetMapping("/test/{id}")
+  @ApiImplicitParams({
+          @ApiImplicitParam(name = "id",value = "部门id",required = true,dataType = "string",paramType = "path")
+  })
+  public Result add(@PathVariable String id){
+
+    Result dept = deptFeign.findById(id);
+
+    return new Result(ResultCode.SUCCESS,dept);
+  }
 
   @ApiOperation("保存用户")
   @PostMapping("/user")
@@ -208,17 +231,72 @@ public class UserController extends BaseController {
     return new Result(ResultCode.SERVER_ERROR.code(),"查询失败",false);
   }
 
-  @ApiOperation("定位subject问题")
-  @GetMapping("/subject/check")
-  public String subjectDemo(){
+  @ApiOperation("上传导入poi文件")
+  @PostMapping("/user/import")
+  public Result importExcel(@RequestParam(name = "file") MultipartFile file) throws IOException {
 
-    Subject subject = SecurityUtils.getSubject();
+    //解析excel
+    //获取 Workbook 对象
+    Workbook workbook = new XSSFWorkbook(file.getInputStream());
+    //获取sheet
+    Sheet sheet = workbook.getSheetAt(0);
 
-    if(subject != null){
-      return "查到subject" + subject;
-    }else{
-      return "查不到subject" + subject;
+    //创建存放user对象的集合
+    List<User> users = new ArrayList<>();
+    //从第二行开始获取数据
+    for(int i = 1; i < sheet.getLastRowNum() + 1; i ++ ){
+      //获取row
+      Row row = sheet.getRow(i);
+      //创建封装每行数据的数组
+      Object[] obejcts = new Object[row.getLastCellNum()];
+
+      for (int j = 1; j < row.getLastCellNum(); j++) {
+        Cell cell = row.getCell(j);
+        Object value = this.getValue(cell);
+        obejcts[j] = value;
+
+      }
+
+      //根据每一行数据，进行封装成为user对象
+      User user = new User(obejcts,companyId,companyName);
+      users.add(user);
+
     }
+
+    //第一个参数用户列表  第二个 部门编码
+    userService.saveMore(users);
+
+    return Result.SUCCESS();
+  }
+
+  /**
+   * 根据单元格元素类型的不同进行对应的数据接收
+  **/
+  private Object getValue(Cell cell){
+    Object object = null;
+
+    switch (cell.getCellType()){
+      case STRING:
+        object = cell.getStringCellValue();
+        break;
+      case BOOLEAN: //boolean类型
+        object = cell.getBooleanCellValue();
+        break;
+      case NUMERIC: //数字类型（包含日期和普通数字）
+        if(DateUtil.isCellDateFormatted(cell)) {
+          object = cell.getDateCellValue();
+        }else{
+          object = cell.getNumericCellValue();
+        }
+        break;
+      case FORMULA: //公式类型
+        object = cell.getCellFormula();
+        break;
+      default:
+        break;
+    }
+
+    return object;
   }
 
 

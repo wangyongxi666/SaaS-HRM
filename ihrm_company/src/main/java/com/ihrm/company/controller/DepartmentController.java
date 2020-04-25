@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.POST;
+
 /**
  * @ClassName DepartmentController
  * @Description (这里用一句话描述这个类的作用)
@@ -88,6 +90,17 @@ public class DepartmentController extends BaseController {
 
     return new Result(ResultCode.SUCCESS);
   }
+
+  @ApiOperation("根据企业id和部门id删除")
+  @PostMapping("/department/search")
+  @ApiImplicitParams({
+          @ApiImplicitParam(name = "companyId",value = "企业id",dataType = "String",required = true,paramType = "param"),
+          @ApiImplicitParam(name = "code",value = "部门id",dataType = "String",required = true,paramType = "param")
+  })
+  public Department findByCode(@RequestParam("code") String code,@RequestParam("companyId") String companyId){
+    return departmentService.findByCode(code,companyId);
+  }
+
 
 
 

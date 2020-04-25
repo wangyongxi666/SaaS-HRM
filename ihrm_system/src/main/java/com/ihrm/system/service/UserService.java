@@ -24,6 +24,10 @@ public interface UserService {
    */
   void save(User user);
   /**
+   * 导入execl批量添加用户
+   */
+  void saveMore(List<User> users);
+  /**
    * 更新用户
    */
   void update(User user);

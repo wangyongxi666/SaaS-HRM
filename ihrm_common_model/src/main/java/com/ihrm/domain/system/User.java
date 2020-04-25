@@ -2,10 +2,13 @@ package com.ihrm.domain.system;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +20,7 @@ import java.util.Set;
 @Table(name = "bs_user")
 @Getter
 @Setter
+@NoArgsConstructor
 public class User implements Serializable {
     private static final long serialVersionUID = 4297464181093070302L;
     /**
@@ -109,4 +113,21 @@ public class User implements Serializable {
             inverseJoinColumns={@JoinColumn(name="role_id",referencedColumnName="id")}
     )
     private Set<Role> roles = new HashSet<Role>();//用户与角色   多对多
+
+
+    //objs数据位置和excel上传位置一致。
+    public User(Object []objs,String companyId,String companyName) {
+        //默认手机号excel读取为字符串会存在科学记数法问题，转化处理
+        this.mobile = new DecimalFormat("#").format(BigDecimal.valueOf(Double.valueOf((String) objs[2])));
+        this.username = objs[1].toString();
+        this.createTime = new Date();
+        this.timeOfEntry = (Date) objs[5];
+        this.departmentId = objs[6].toString();
+        this.formOfEmployment = ((Double) objs[4]).intValue() ;
+        this.workNumber = new DecimalFormat("#").format(objs[3]).toString();
+        this.companyId = companyId;
+        this.companyName = companyName;
+    }
+
+
 }

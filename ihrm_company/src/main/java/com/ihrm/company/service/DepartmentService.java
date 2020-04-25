@@ -31,4 +31,9 @@ public interface DepartmentService {
    * 根据企业id和部门id删除
   **/
   void deleteByCompanyIdAndDeptId(String companyId, String id);
+
+  /**
+   * 根据企业id和部门id查询
+   **/
+  Department findByCode(String code, String companyId);
 }

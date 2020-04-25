@@ -157,4 +157,15 @@ public class DepartmentServiceImpl implements DepartmentService {
     departmentResitory.deleteById(id);
 
   }
+
+  /**
+   * 根据企业id和部门id查询
+   *
+   * @param code
+   * @param companyId
+   */
+  @Override
+  public Department findByCode(String code, String companyId) {
+    return null;
+  }
 }
