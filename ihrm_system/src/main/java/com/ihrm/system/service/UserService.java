@@ -3,6 +3,7 @@ package com.ihrm.system.service;
 import com.ihrm.domain.system.User;
 import io.jsonwebtoken.Claims;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -66,4 +67,9 @@ public interface UserService {
    * 从header中获取并解析token
   **/
   Claims getTokenForHeader(HttpServletRequest request);
+
+  /**
+   * @上传图片
+  **/
+  String uploadImage(String id, MultipartFile file) throws Exception;
 }

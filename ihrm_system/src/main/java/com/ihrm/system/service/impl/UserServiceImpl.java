@@ -2,6 +2,7 @@ package com.ihrm.system.service.impl;
 
 import com.ihrm.common.util.IdWorker;
 import com.ihrm.common.util.JwtUtils;
+import com.ihrm.common.util.QiniuUtils;
 import com.ihrm.domain.company.Department;
 import com.ihrm.domain.system.Role;
 import com.ihrm.domain.system.User;
@@ -9,6 +10,7 @@ import com.ihrm.system.client.DeptFeign;
 import com.ihrm.system.dao.RoleResitory;
 import com.ihrm.system.dao.UserResitory;
 import com.ihrm.system.service.UserService;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import io.jsonwebtoken.Claims;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -216,6 +219,30 @@ public class UserServiceImpl implements UserService{
     Claims claims = jwtUtils.parseJwt(replace);
 
     return claims;
+  }
+
+  /**
+   * @param id
+   * @param file
+   * @上传图片
+   */
+  @Override
+  public String uploadImage(String id, MultipartFile file) throws Exception {
+    //根据id查询用户
+    User user = userResitory.findById(id).get();
+
+//    //对上传文件进行Base64编码
+//    String s = Base64.encode(file.getBytes());
+//    //拼接DataURL数据头
+//    String dataUrl = new String("data:image/jpg;base64,"+s);
+
+    //使用七牛云存储
+    String url = QiniuUtils.upload2Qiniu(file.getBytes(), user.getId());
+
+    user.setStaffPhoto(url);
+    //保存图片信息
+    userResitory.save(user);
+    return url;
   }
 
   /**

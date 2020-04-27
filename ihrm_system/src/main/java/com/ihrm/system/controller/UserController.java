@@ -299,5 +299,10 @@ public class UserController extends BaseController {
     return object;
   }
 
+  @RequestMapping(value="/user/upload/{id}")
+  public Result upload(@PathVariable String id,@RequestParam(name = "file") MultipartFile file) throws Exception {
+    String image = userService.uploadImage(id, file);
+    return new Result(ResultCode.SUCCESS,image);
+  }
 
 }
