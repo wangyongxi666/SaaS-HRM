@@ -70,6 +70,7 @@ public class ShiroConfiguration {
         //匿名访问（所有人员可以使用）
         filterMap.put("/sys/login", "anon");
         filterMap.put("/autherror", "anon");
+        filterMap.put("/employees/download", "anon");
 
         filterMap.put("/swagger-ui.html**", "anon");
         filterMap.put("/swagger-ui.html/**", "anon");
@@ -77,6 +78,11 @@ public class ShiroConfiguration {
         filterMap.put("/v2/api-docs", "anon");
         filterMap.put("/swagger-resources/**", "anon");
         filterMap.put("/webjars/**", "anon");
+
+        filterMap.put("/iframe/**", "anon");
+        filterMap.put("/iframe", "anon");
+        filterMap.put("**/iframe", "anon");
+        filterMap.put("**/iframe/**", "anon");
 
         //认证之后访问（登录之后可以访问）
         filterMap.put("/**", "authc");

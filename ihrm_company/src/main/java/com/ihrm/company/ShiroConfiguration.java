@@ -68,6 +68,11 @@ public class ShiroConfiguration {
         filterMap.put("/swagger-resources/**", "anon");
         filterMap.put("/webjars/**", "anon");
 
+        filterMap.put("/iframe/**", "anon");
+        filterMap.put("/iframe", "anon");
+        filterMap.put("**/iframe", "anon");
+        filterMap.put("**/iframe/**", "anon");
+
         //authc -- 认证之后访问（登录）
         filterMap.put("/**","authc");
 

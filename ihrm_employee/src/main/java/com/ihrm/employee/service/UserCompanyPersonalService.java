@@ -23,4 +23,10 @@ public class UserCompanyPersonalService {
     public UserCompanyPersonal findById(String userId) {
         return userCompanyPersonalDao.findByUserId(userId);
     }
+
+  public List<EmployeeReportResult> findByRepost(String companyId, String month) {
+
+    return userCompanyPersonalDao.findByRepost( companyId,  month+"%");
+
+  }
 }
