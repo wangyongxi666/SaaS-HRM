@@ -12,6 +12,7 @@ import com.ihrm.domain.employee.*;
 import com.ihrm.domain.employee.response.EmployeeReportResult;
 import com.ihrm.domain.system.User;
 import com.ihrm.employee.service.*;
+import net.sf.jasperreports.engine.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -578,5 +579,46 @@ public class EmployeeController extends BaseController {
         System.out.println("循环执行完成");
 
     }
+
+    /**
+     * 打印员工pdf报表x
+     */
+    @RequestMapping(value="/{id}/pdf",method = RequestMethod.GET)
+    public void pdf(@PathVariable String id) throws IOException {
+        //1.引入jasper文件
+        Resource resource = new ClassPathResource("templates/profile.jasper");
+        FileInputStream fis = new FileInputStream(resource.getFile());
+
+        //2.构造数据
+        //a.用户详情数据
+        UserCompanyPersonal personal = userCompanyPersonalService.findById(id);
+        //b.用户岗位信息数据
+        UserCompanyJobs jobs = userCompanyJobsService.findById(id);
+        //c.用户头像        域名 / id
+        String staffPhoto = "http://q9fg6lii3.bkt.clouddn.com/"+id;
+
+        System.out.println(staffPhoto);
+
+        //3.填充pdf模板数据，并输出pdf
+        Map params = new HashMap();
+
+        Map<String, Object> map1 = BeanMapUtils.beanToMap(personal);
+        Map<String, Object> map2 = BeanMapUtils.beanToMap(jobs);
+
+        params.putAll(map1);
+        params.putAll(map2);
+        params.put("staffPhoto",staffPhoto);
+
+        ServletOutputStream os = response.getOutputStream();
+        try {
+            JasperPrint print = JasperFillManager.fillReport(fis, params,new JREmptyDataSource());
+            JasperExportManager.exportReportToPdfStream(print,os);
+        } catch (JRException e) {
+            e.printStackTrace();
+        }finally {
+            os.flush();
+        }
+    }
+
 
 }

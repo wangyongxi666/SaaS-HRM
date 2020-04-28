@@ -61,6 +61,7 @@ public class ShiroConfiguration {
         //anon -- 匿名访问
         filterMap.put("/sys/login","anon");
         filterMap.put("/autherror","anon");
+        filterMap.put("/sys/faceLogin/**","anon");
 
         filterMap.put("/swagger-ui.html**", "anon");
         filterMap.put("/swagger-ui.html/**", "anon");

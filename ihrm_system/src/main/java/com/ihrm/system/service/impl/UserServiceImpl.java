@@ -10,6 +10,7 @@ import com.ihrm.system.client.DeptFeign;
 import com.ihrm.system.dao.RoleResitory;
 import com.ihrm.system.dao.UserResitory;
 import com.ihrm.system.service.UserService;
+import com.ihrm.system.utils.BaiduAiUtil;
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 import io.jsonwebtoken.Claims;
 import org.apache.shiro.crypto.hash.Md5Hash;
@@ -42,6 +43,8 @@ public class UserServiceImpl implements UserService{
   private DeptFeign deptFeign;
   @Autowired
   private JwtUtils jwtUtils;
+  @Autowired
+  private BaiduAiUtil baiduAiUtil;
 
   /**
    * 根据手机号和密码查询用户
@@ -236,8 +239,18 @@ public class UserServiceImpl implements UserService{
 //    //拼接DataURL数据头
 //    String dataUrl = new String("data:image/jpg;base64,"+s);
 
+    String base64 = Base64.encode(file.getBytes());
+
     //使用七牛云存储
     String url = QiniuUtils.upload2Qiniu(file.getBytes(), user.getId());
+
+    //调用百度云api 不存在则调用上传，存在则调用更新
+    Boolean flag = baiduAiUtil.faceExist(id);
+    if(flag){
+      baiduAiUtil.faceUpdate(id,base64);
+    }else {
+      baiduAiUtil.faceRegister(id,base64);
+    }
 
     user.setStaffPhoto(url);
     //保存图片信息
